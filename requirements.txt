@@ -1,1 +1,16 @@
+# ============================================
+# ⚡ Save Restricted Content Bot v4 — Powered by Zain
+# File: requirements.txt
+# Description: Required dependencies for bot and dashboard
+# ============================================
+
+pyrogram
+TgCrypto
+motor
+flask
+cryptography
+python-dotenv
+psutil
+loguru
+humanize
 
