@@ -1,7 +1,7 @@
 # ============================================
 # ⚡ Save Restricted Content Bot v4 — Powered by Zain
-# Compatible with Koyeb Free Tier / Render Worker
-# Flask (main thread) + Telegram Bot (background)
+# Works on Koyeb free plan / Render worker / Heroku worker
+# Flask dashboard (main thread) + Telegram bot (background)
 # ============================================
 
 import threading
@@ -28,12 +28,12 @@ db = db_client["savebot"]
 users_col = db["users"]
 
 # -------------------------------------------------
-# Initialize Pyrogram Client
+# Initialize Pyrogram client
 # -------------------------------------------------
 bot = Client("ZainBotV4", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # -------------------------------------------------
-# Commands
+# Telegram commands
 # -------------------------------------------------
 @bot.on_message(filters.command("start"))
 async def start_handler(_, message):
@@ -49,19 +49,19 @@ async def start_handler(_, message):
         f"🍪 `/cookie` — Set your cookies"
     )
 
-# Debug: see if bot gets messages
 @bot.on_message()
 async def debug_all(_, message):
+    """Print all received messages in logs (for debugging)."""
     print(f"DEBUG UPDATE RECEIVED: {message.text}")
 
 # -------------------------------------------------
-# Run bot in background thread
+# Run the bot (without using idle)
 # -------------------------------------------------
 def run_bot():
     asyncio.run(start_bot())
 
 async def start_bot():
-    """Start Pyrogram bot safely without using idle()."""
+    """Start the bot safely in background thread."""
     register_exit_cleanup()
     startup_cleanup_banner()
 
@@ -70,7 +70,7 @@ async def start_bot():
     logger.success(f"✅ Connected as @{me.username}")
     logger.success("✅ Bot started successfully and is ready to use.")
 
-    # Keep alive loop instead of idle()
+    # Keep alive loop (instead of idle, which uses signals)
     while True:
         await asyncio.sleep(10)
 
@@ -78,9 +78,8 @@ async def start_bot():
 # Run Flask (main) + Bot (background)
 # -------------------------------------------------
 if __name__ == "__main__":
-    # Run the bot in a background thread
-    t = threading.Thread(target=run_bot, daemon=True)
-    t.start()
+    # Start the Telegram bot in a background thread
+    threading.Thread(target=run_bot, daemon=True).start()
 
-    # Run Flask dashboard (main process)
+    # Run the Flask dashboard in the main thread
     app.run(host="0.0.0.0", port=10000)
