@@ -161,23 +161,24 @@ async def broadcast_startup_message():
 # -------------------------------------------------
 async def main():
     logger.info("🚀 Launching Save Restricted Bot v4 — Powered by Zain")
-    await bot.start()me = await bot.get_me()
-print(f"Connected as @{me.username}")
+
+    await bot.start()
+
+    # Confirm connection
+    me = await bot.get_me()
+    print(f"Connected as @{me.username}")
 
     logger.success("✅ Bot started successfully and is ready to use.")
 
     # Broadcast on startup
     await broadcast_startup_message()
 
-    # Owner notification
+    # Notify owner
     try:
         await bot.send_message(OWNER_ID, "📢 Broadcast sent to all users.\n⚡ Powered by Zain")
     except Exception as e:
-        logger.warning(f"Owner notification failed: {e}")
+        logger.warning(f"Could not message owner: {e}")
 
     await idle()
     await bot.stop()
     logger.warning("🛑 Bot stopped.")
-
-if __name__ == "__main__":
-    asyncio.run(main())
