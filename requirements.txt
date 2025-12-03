@@ -1,16 +1,28 @@
 # ============================================
 # ⚡ Save Restricted Content Bot v4 — Powered by Zain
 # File: requirements.txt
-# Description: Required dependencies for bot and dashboard
+# Description: Dependencies for full downloader + dashboard + database system
 # ============================================
 
+# Telegram Bot Framework
 pyrogram
 TgCrypto
-motor
+
+# Web and API
 flask
+
+# Database
+motor
+
+# Encryption & Security
 cryptography
 python-dotenv
+
+# System Utilities
 psutil
 loguru
 humanize
 
+# Downloaders
+yt-dlp
+instaloader
