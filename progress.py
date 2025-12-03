@@ -1,7 +1,7 @@
 # ============================================
 # ⚡ Save Restricted Content Bot v4 — Powered by Zain
 # File: progress.py
-# Description: Advanced progress system with refresh button & batch tracking
+# Description: Enhanced progress system with stage indicator (Download/Upload)
 # ============================================
 
 import math
@@ -11,12 +11,7 @@ from datetime import timedelta
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import FloodWait
 
-# -----------------------------
-# Helpers
-# -----------------------------
-
 def human_readable_bytes(size: int) -> str:
-    """Convert bytes into human-readable format (e.g., 1.25MiB)."""
     if not size:
         return "0B"
     power = 1024
@@ -27,16 +22,12 @@ def human_readable_bytes(size: int) -> str:
         n += 1
     return f"{size:.2f}{Dic_powerN[n]}B"
 
-
 def human_readable_time(seconds: float) -> str:
-    """Convert seconds to human-readable time string."""
     if seconds <= 0:
         return "-"
     return str(timedelta(seconds=int(seconds)))
 
-
 async def safe_edit(message, text, reply_markup=None):
-    """FloodWait-protected message editor."""
     while True:
         try:
             return await message.edit(
@@ -49,17 +40,10 @@ async def safe_edit(message, text, reply_markup=None):
         except Exception:
             break
 
-
 def make_bar(percent: float) -> str:
-    """Render visual progress bar using block characters."""
     filled = int(percent // 10)
     empty = 10 - filled
     return "▰" * filled + "▱" * empty
-
-
-# -----------------------------
-# Main Progress Callback
-# -----------------------------
 
 async def progress_callback(
     current: int,
@@ -73,10 +57,6 @@ async def progress_callback(
     last_update: dict,
     task_id: str,
 ):
-    """
-    Asynchronous progress updater.
-    Displays processed size, speed, ETA, elapsed, and refresh button.
-    """
     now = time.time()
     diff = now - start_time
     if diff < 0.5:
@@ -84,7 +64,6 @@ async def progress_callback(
 
     percent = current * 100 / total if total else 0
 
-    # Update only every 5s or 1% progress change
     if (
         now - last_update.get("time", 0) < 5
         and percent - last_update.get("percent", 0) < 1
@@ -104,23 +83,22 @@ async def progress_callback(
     eta_h = human_readable_time(eta)
     elapsed = human_readable_time(diff)
 
+    stage_icon = "⬇️" if "Download" in stage else "⬆️"
     progress_text = (
-        f"📁 **Batch Progress ({index} / {total_files})**\n"
+        f"{stage_icon} **{stage} Progress ({index}/{total_files})**\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🎬 Current File:\n"
         f"{filename}\n\n"
-        f"📦 **Status:** {stage}...\n\n"
         f"{bar} **{percent:.0f}%**\n\n"
-        f"📊 **Processed:** {processed} of {total_h}\n"
+        f"📊 **Processed:** {processed} / {total_h}\n"
         f"⚡ **Speed:** {speed_h}/s | ⏳ **ETA:** {eta_h}\n"
         f"⏰ **Elapsed:** {elapsed}\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"             🔄 **Refresh**\n"
+        f"🔄 **Tap to Refresh**\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"⚡ Powered by Zain | Save Restricted Bot v4"
     )
 
-    # Inline refresh button
     buttons = InlineKeyboardMarkup(
         [[InlineKeyboardButton("🔄 Refresh", callback_data=f"refresh_{task_id}")]]
     )
