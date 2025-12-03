@@ -7,10 +7,17 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install system dependencies (FFmpeg is required for yt-dlp)
+RUN apt-get update && \
+    apt-get install -y ffmpeg git && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 10000
+# Render/Koyeb sets the PORT env var, but we expose a default just in case
+EXPOSE 8080
 
-CMD ["bash", "-c", "python3 main.py & python3 app.py"]
+# Run ONLY main.py (it now handles both Bot and Web)
+CMD ["python3", "main.py"]
