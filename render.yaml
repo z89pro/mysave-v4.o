@@ -1,3 +1,9 @@
+# ============================================
+# ⚡ Save Restricted Content Bot v4 — Powered by Zain
+# File: render.yaml
+# Description: Render.com deployment configuration
+# ============================================
+
 services:
   - type: web
     name: zain-bot-dashboard
