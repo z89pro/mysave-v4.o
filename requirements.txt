@@ -1,28 +1,12 @@
-# ============================================
-# ⚡ Save Restricted Content Bot v4 — Powered by Zain
-# File: requirements.txt
-# Description: Dependencies for full downloader + dashboard + database system
-# ============================================
-
-# Telegram Bot Framework
 pyrogram
 TgCrypto
-
-# Web and API
 flask
-pyromod
-# Database
 motor
-
-# Encryption & Security
 cryptography
 python-dotenv
-
-# System Utilities
 psutil
 loguru
 humanize
-
-# Downloaders
 yt-dlp
 instaloader
+pyromod
