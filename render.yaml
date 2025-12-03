@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: zain-bot-dashboard
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python3 app.py
+    plan: free
+
+  - type: worker
+    name: zain-bot-worker
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python3 main.py
