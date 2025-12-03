@@ -2,7 +2,12 @@
 # ⚡ Save Restricted Content Bot v4 — Powered by Zain
 # Updated for YouTube + Instagram Downloader Integration
 # ============================================
-
+__pycache__/
+*.pyc
+.env
+downloads/
+insta_downloads/
+*.session
 __pycache__/
 *.py[cod]
 *.pyo
