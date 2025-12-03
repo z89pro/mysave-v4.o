@@ -1,13 +1,12 @@
 # ============================================
 # ⚡ Save Restricted Content Bot v4 — Powered by Zain
-# Compatible with Koyeb Free Tier
-# Flask (main) + Telegram Bot (background)
+# Compatible with Koyeb Free Tier / Render Worker
+# Flask (main thread) + Telegram Bot (background)
 # ============================================
 
 import threading
 import asyncio
 import logging
-import time
 from pyrogram import Client, filters
 from config.settings import API_ID, API_HASH, BOT_TOKEN, OWNER_ID, MONGO_DB
 from utils.cleanup import startup_cleanup_banner, register_exit_cleanup
@@ -50,6 +49,7 @@ async def start_handler(_, message):
         f"🍪 `/cookie` — Set your cookies"
     )
 
+# Debug: see if bot gets messages
 @bot.on_message()
 async def debug_all(_, message):
     print(f"DEBUG UPDATE RECEIVED: {message.text}")
@@ -61,14 +61,16 @@ def run_bot():
     asyncio.run(start_bot())
 
 async def start_bot():
+    """Start Pyrogram bot safely without using idle()."""
     register_exit_cleanup()
     startup_cleanup_banner()
+
     await bot.start()
     me = await bot.get_me()
     logger.success(f"✅ Connected as @{me.username}")
     logger.success("✅ Bot started successfully and is ready to use.")
 
-    # Keep alive instead of idle()
+    # Keep alive loop instead of idle()
     while True:
         await asyncio.sleep(10)
 
@@ -76,6 +78,9 @@ async def start_bot():
 # Run Flask (main) + Bot (background)
 # -------------------------------------------------
 if __name__ == "__main__":
+    # Run the bot in a background thread
     t = threading.Thread(target=run_bot, daemon=True)
     t.start()
+
+    # Run Flask dashboard (main process)
     app.run(host="0.0.0.0", port=10000)
