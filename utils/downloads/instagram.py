@@ -6,6 +6,7 @@
 
 import os
 import asyncio
+import time
 import instaloader
 from utils.safe_send import safe_send
 from utils.cleanup import cleanup_temp_files
@@ -28,42 +29,60 @@ async def download_instagram(app, message, url, cookie_data=None):
     """
     chat_id = message.chat.id
     user_id = message.from_user.id
-    start_time = asyncio.get_event_loop().time()
+    start_time = time.time()
     last_update = {"time": 0, "percent": 0}
     filename = None
 
     try:
-        loader = instaloader.Instaloader(dirname_pattern=TEMP_DIR, download_videos=True, quiet=True)
-        cookie_file = None
+        loader = instaloader.Instaloader(
+            dirname_pattern=TEMP_DIR,
+            download_videos=True,
+            quiet=True
+        )
 
-        # If user has cookies, save them temporarily
+        # Handle cookies for private or logged-in content
+        cookie_file = None
         if cookie_data:
             cookie_file = f"{TEMP_DIR}/cookie_{user_id}.txt"
             with open(cookie_file, "w", encoding="utf-8") as f:
                 f.write(cookie_data)
-            loader.load_session_from_file("session", cookie_file)
+            try:
+                loader.load_session_from_file("session", cookie_file)
+            except Exception:
+                pass
 
-        await safe_send(message.reply_text, "📥 Downloading from Instagram...")
+        await safe_send(message.reply_text, "📥 Downloading media from Instagram...")
 
-        post = instaloader.Post.from_shortcode(loader.context, url.split("/")[-2])
+        # Extract shortcode from link (e.g., https://www.instagram.com/reel/XXXXX/)
+        shortcode = None
+        parts = [p for p in url.strip("/").split("/") if p]
+        if len(parts) >= 2:
+            shortcode = parts[-1] if parts[-1] else parts[-2]
+        if not shortcode:
+            return await message.reply("❌ Invalid Instagram link.")
+
+        post = instaloader.Post.from_shortcode(loader.context, shortcode)
         loader.download_post(post, target=TEMP_DIR)
 
-        # Find downloaded file
+        # Find downloaded file (video or image)
         for file in os.listdir(TEMP_DIR):
-            if file.endswith((".mp4", ".jpg")):
+            if file.endswith((".mp4", ".jpg", ".png")):
                 filename = os.path.join(TEMP_DIR, file)
                 break
 
-        if not filename:
-            return await message.reply("❌ Failed to find downloaded file.")
+        if not filename or not os.path.exists(filename):
+            return await message.reply("❌ Failed to locate downloaded file.")
 
+        # Premium size check
         file_size = os.path.getsize(filename)
         if file_size > 500 * 1024 * 1024 and not (await is_premium(user_id) or user_id == OWNER_ID):
-            await message.reply("❌ File too large. Premium users only for >500MB.")
+            await message.reply("❌ File exceeds 500MB. Premium required for large downloads.")
             os.remove(filename)
             return
 
-        upload_msg = await safe_send(app.send_message, chat_id, "📤 Uploading media...")
+        upload_msg = await safe_send(app.send_message, chat_id, "📤 Uploading media to Telegram...")
+
+        # Upload with progress
         with open(filename, "rb") as f:
             if filename.endswith(".mp4"):
                 await app.send_video(
@@ -71,10 +90,31 @@ async def download_instagram(app, message, url, cookie_data=None):
                     f,
                     caption="✅ Downloaded from Instagram\n⚡ Powered by Zain",
                     progress=progress_callback,
-                    progress_args=(upload_msg, start_time, 1, 1, "Uploading", filename, last_update, f"insta_{user_id}"),
+                    progress_args=(
+                        0,  # current bytes start placeholder
+                        file_size,
+                        upload_msg,
+                        start_time,
+                        1,
+                        1,
+                        "Uploading",
+                        os.path.basename(filename),
+                        last_update,
+                        f"insta_{user_id}",
+                    ),
                 )
             else:
                 await app.send_photo(
                     chat_id,
                     f,
-                    caption="✅ Downloaded from Instagram\n⚡ Powered
+                    caption="✅ Downloaded from Instagram\n⚡ Powered by Zain",
+                )
+
+        # Clean temp files
+        cleanup_temp_files()
+        await safe_send(upload_msg.edit, "✅ Uploaded successfully!\n⚡ Powered by Zain")
+
+    except Exception as e:
+        await safe_send(message.reply_text, f"❌ Error: {str(e)}")
+        if filename and os.path.exists(filename):
+            os.remove(filename)
