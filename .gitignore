@@ -1,29 +1,24 @@
-# ========================================
-# ⚡ Save Restricted Bot v4 — Powered by Zain
-# Git Ignore Configuration
-# ========================================
+# ============================================
+# ⚡ Save Restricted Content Bot v4 — Powered by Zain
+# Updated for YouTube + Instagram Downloader Integration
+# ============================================
 
-# 🧩 Python cache and build files
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 *.so
-*.egg
 *.egg-info/
 build/
 dist/
 
-# 🧠 Virtual environments
 .env
 .venv/
 venv/
-env/
 ENV/
 *.env.enc
 .env.local
 
-# 🔐 Sensitive credentials
 *.key
 *.pem
 *.crt
@@ -31,12 +26,10 @@ ENV/
 *.token
 *.json
 
-# 🗄️ Application logs & temp files
 logs/
 *.log
 *.temp
 *.part
-*.ytdl
 *.mkv
 *.mp4
 *.jpg
@@ -45,61 +38,18 @@ logs/
 *.mp3
 *.wav
 
-# ⚙️ System files
+# Downloader temp folders
+downloads/
+insta_downloads/
+
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# 🐳 Docker & deployment
-*.pid
-*.lock
-docker-compose.override.yml
-
-# 📦 Node/npm extras (if any web scripts)
 node_modules/
-package-lock.json
-
-# 🧰 IDE & editor configs
 .vscode/
 .idea/
-*.iml
-
-# 🧾 Cache & misc
 .cache/
 __pypackages__/
 *.sqlite3
 *.db
-
-# 🪄 Backup files
-*.bak
-*.old
-*.orig
-*.swp
-*.swo
-
-# 🚀 Heroku & deployment build cache
-.heroku/
-*.tar.gz
-*.zip
-*.tgz
-
-# 🧾 PyInstaller
-*.manifest
-*.spec
-
-# 🧹 Reports & temporary data
-coverage/
-pytest_cache/
-htmlcov/
-.tox/
-.mypy_cache/
-
-# ========================================
-# ✅ Safe to commit everything else:
-#   - main.py
-#   - progress.py
-#   - app.py
-#   - config/, utils/, commands/
-#   - templates/
-#   - requirements.txt
-# ========================================
