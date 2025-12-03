@@ -1,3 +1,8 @@
+# ============================================
+# ⚡ Save Restricted Content Bot v4 — Powered by Zain
+# File: progress.py
+# Description: Advanced progress system with refresh button & batch tracking
+# ============================================
 
 import math
 import time
@@ -6,12 +11,12 @@ from datetime import timedelta
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import FloodWait
 
-# -------------------------------
-# ⚡ Powered by Zain | v4 Engine
-# -------------------------------
+# -----------------------------
+# Helpers
+# -----------------------------
 
-# Helper to convert bytes to human-readable sizes
 def human_readable_bytes(size: int) -> str:
+    """Convert bytes into human-readable format (e.g., 1.25MiB)."""
     if not size:
         return "0B"
     power = 1024
@@ -23,15 +28,15 @@ def human_readable_bytes(size: int) -> str:
     return f"{size:.2f}{Dic_powerN[n]}B"
 
 
-# Helper to convert seconds to human-readable time
 def human_readable_time(seconds: float) -> str:
+    """Convert seconds to human-readable time string."""
     if seconds <= 0:
         return "-"
     return str(timedelta(seconds=int(seconds)))
 
 
-# FloodWait-safe message editor
 async def safe_edit(message, text, reply_markup=None):
+    """FloodWait-protected message editor."""
     while True:
         try:
             return await message.edit(
@@ -45,14 +50,17 @@ async def safe_edit(message, text, reply_markup=None):
             break
 
 
-# Build visual progress bar ▰▱
 def make_bar(percent: float) -> str:
+    """Render visual progress bar using block characters."""
     filled = int(percent // 10)
     empty = 10 - filled
     return "▰" * filled + "▱" * empty
 
 
-# The main progress callback
+# -----------------------------
+# Main Progress Callback
+# -----------------------------
+
 async def progress_callback(
     current: int,
     total: int,
@@ -65,13 +73,18 @@ async def progress_callback(
     last_update: dict,
     task_id: str,
 ):
+    """
+    Asynchronous progress updater.
+    Displays processed size, speed, ETA, elapsed, and refresh button.
+    """
     now = time.time()
     diff = now - start_time
     if diff < 0.5:
         return
 
-    # Update only every 5s or 1% change
     percent = current * 100 / total if total else 0
+
+    # Update only every 5s or 1% progress change
     if (
         now - last_update.get("time", 0) < 5
         and percent - last_update.get("percent", 0) < 1
@@ -91,7 +104,6 @@ async def progress_callback(
     eta_h = human_readable_time(eta)
     elapsed = human_readable_time(diff)
 
-    # Build message text
     progress_text = (
         f"📁 **Batch Progress ({index} / {total_files})**\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -114,28 +126,3 @@ async def progress_callback(
     )
 
     await safe_edit(message, progress_text, reply_markup=buttons)
-
-
-# -----------------------------
-# Example usage in batch.py:
-# -----------------------------
-"""
-from progress import progress_callback
-
-# inside your download or upload loop:
-start_time = time.time()
-last_update = {"time": 0, "percent": 0}
-
-await progress_callback(
-    current_bytes,
-    total_bytes,
-    progress_message,
-    start_time,
-    current_index,
-    total_files,
-    "Downloading",
-    filename,
-    last_update,
-    task_id
-)
-"""
