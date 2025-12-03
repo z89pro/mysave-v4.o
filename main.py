@@ -1,11 +1,12 @@
 # ============================================
 # ⚡ Save Restricted Content Bot v4 — Powered by Zain
-# Fix: Replaced pyrogram.idle() with asyncio.sleep() to fix threading crash
+# Fix: Thread-safe bot loop + Dynamic Port Handling
 # ============================================
 
 import threading
 import asyncio
 import logging
+import os
 from pyrogram import Client, filters
 from config.settings import API_ID, API_HASH, BOT_TOKEN, MONGO_DB
 from utils.cleanup import startup_cleanup_banner, register_exit_cleanup
@@ -50,9 +51,6 @@ async def start_handler(_, message):
 
 @bot.on_message()
 async def debug_all(_, message):
-    """Print all received messages in logs (for debugging)."""
-    # Optional: Comment out in production to reduce log noise
-    # print(f"DEBUG UPDATE RECEIVED: {message.text}")
     pass
 
 # -------------------------------------------------
@@ -72,21 +70,18 @@ async def start_bot():
     logger.success(f"✅ Connected as @{me.username}")
     logger.success("✅ Bot started successfully and is ready to use.")
 
-    # CRITICAL FIX: Do NOT use await idle() here. 
-    # idle() uses signals which fail in a background thread.
-    # Use an infinite sleep loop instead.
+    # CRITICAL FIX: Use infinite sleep instead of idle() to prevent threading crash
     while True:
-        await asyncio.sleep(60)
+        await asyncio.sleep(3600)
 
 # -------------------------------------------------
-# Run Flask (main) + Bot (background)
+# Run Flask (Main Thread) + Bot (Background)
 # -------------------------------------------------
 if __name__ == "__main__":
-    # 1. Start the Telegram bot in a detached background thread
-    #    daemon=True ensures it dies when the main Flask app dies
-    bot_thread = threading.Thread(target=run_bot, daemon=True)
-    bot_thread.start()
+    # 1. Start the Telegram bot in a background thread
+    threading.Thread(target=run_bot, daemon=True).start()
 
     # 2. Run the Flask dashboard in the Main Thread
-    #    This blocks execution, keeping the script alive
-    app.run(host="0.0.0.0", port=10000)
+    # Fix: Use os.getenv("PORT") to satisfy Render/Koyeb health checks
+    port = int(os.getenv("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
