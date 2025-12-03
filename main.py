@@ -6,6 +6,7 @@ import pyromod  # REQUIRED: Patches Pyrogram
 
 from pyrogram import Client, filters
 from pyrogram.handlers import MessageHandler, CallbackQueryHandler
+from pyrogram.raw.functions.bots import SetWebhook  # <--- FIXED IMPORT
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from config.settings import API_ID, API_HASH, BOT_TOKEN, MONGO_DB
@@ -21,7 +22,7 @@ from commands.help import help_command
 # Logger Init
 logger = get_logger()
 
-# DB Init (Low Timeout to prevent hanging)
+# DB Init
 db_client = AsyncIOMotorClient(MONGO_DB, serverSelectionTimeoutMS=5000)
 db = db_client["savebot"]
 
@@ -41,13 +42,12 @@ async def start_handler(client, message):
         await msg.edit(f"❌ **DB Error:** {e}")
 
 async def debug_handler(client, message):
-    # This proves the bot "hears" even if it doesn't reply
     logger.info(f"👂 HEARD MESSAGE: {message.text}")
 
 # --- Registration ---
 
 def register_handlers(app):
-    # Debug Listener (Catches all text)
+    # Debug Listener
     app.add_handler(MessageHandler(debug_handler, filters.text), group=-1)
 
     # Commands
@@ -71,14 +71,20 @@ async def start_bot():
     
     await bot.start()
     
-    # FORCE DELETE WEBHOOK (Fixes 'No Reply' issue)
-    logger.info("🧹 Clearing Webhooks...")
-    await bot.delete_webhook(drop_pending_updates=True)
+    # --- CRITICAL FIX START ---
+    # Replaced 'delete_webhook' helper with Raw API call to prevent AttributeError
+    logger.info("🧹 Clearing Webhooks (Raw Mode)...")
+    try:
+        await bot.invoke(SetWebhook(url=""))
+        logger.success("✅ Webhook Cleared Successfully.")
+    except Exception as e:
+        logger.warning(f"⚠️ Webhook Clear Warning: {e}")
+    # --- CRITICAL FIX END ---
     
     me = await bot.get_me()
     logger.success(f"✅ Logged in as @{me.username}")
     
-    # Infinite Sleep (Better than idle())
+    # Infinite Sleep
     while True:
         await asyncio.sleep(3600)
 
