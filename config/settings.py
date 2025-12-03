@@ -12,4 +12,4 @@ MONGO_DB = os.getenv("MONGO_DB", "")
 # Optional Envs
 LOG_GROUP = int(os.getenv("LOG_GROUP", "-100"))
 FORCE_SUB = int(os.getenv("FORCE_SUB", "-100"))
-VERSION = "4.0-Zain-Fix"
+VERSION = "4.0-Final"
