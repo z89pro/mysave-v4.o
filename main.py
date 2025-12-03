@@ -1,3 +1,8 @@
+# ============================================
+# ⚡ Save Restricted Content Bot v4 — Powered by Zain
+# FINAL FIX: Uses Raw API for Webhook to prevent AttributeError
+# ============================================
+
 import threading
 import asyncio
 import logging
@@ -6,7 +11,8 @@ import pyromod  # REQUIRED: Patches Pyrogram
 
 from pyrogram import Client, filters
 from pyrogram.handlers import MessageHandler, CallbackQueryHandler
-from pyrogram.raw.functions.bots import SetWebhook  # <--- FIXED IMPORT
+# ⬇️ CRITICAL IMPORT FOR THE FIX ⬇️
+from pyrogram.raw.functions.bots import SetWebhook 
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from config.settings import API_ID, API_HASH, BOT_TOKEN, MONGO_DB
@@ -22,7 +28,7 @@ from commands.help import help_command
 # Logger Init
 logger = get_logger()
 
-# DB Init
+# DB Init (Low Timeout to prevent hanging)
 db_client = AsyncIOMotorClient(MONGO_DB, serverSelectionTimeoutMS=5000)
 db = db_client["savebot"]
 
@@ -42,12 +48,13 @@ async def start_handler(client, message):
         await msg.edit(f"❌ **DB Error:** {e}")
 
 async def debug_handler(client, message):
+    # This proves the bot "hears" even if it doesn't reply
     logger.info(f"👂 HEARD MESSAGE: {message.text}")
 
 # --- Registration ---
 
 def register_handlers(app):
-    # Debug Listener
+    # Debug Listener (Catches all text)
     app.add_handler(MessageHandler(debug_handler, filters.text), group=-1)
 
     # Commands
@@ -72,7 +79,8 @@ async def start_bot():
     await bot.start()
     
     # --- CRITICAL FIX START ---
-    # Replaced 'delete_webhook' helper with Raw API call to prevent AttributeError
+    # We replaced 'delete_webhook' with this Raw API call.
+    # This forces Telegram to delete the webhook without using the broken helper function.
     logger.info("🧹 Clearing Webhooks (Raw Mode)...")
     try:
         await bot.invoke(SetWebhook(url=""))
