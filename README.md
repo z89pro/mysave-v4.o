@@ -21,8 +21,8 @@ It downloads restricted Telegram content, manages premium users, and provides a 
 
 ---
 
-## ⚙️ Environment Variables (.env)
-##API_ID=123456
+⚙️ Environment Variables (.env)
+API_ID=123456
 API_HASH=abcd1234
 BOT_TOKEN=123456:ABCDEF
 OWNER_ID=987654321
@@ -59,7 +59,7 @@ SaveRestrictedBot/
 ├── .gitignore
 └── README.md
 
-****Render
+#Render
 
 Add render.yaml
 
@@ -75,7 +75,7 @@ Connect repo → Auto build
 
 
 
-Built for speed, privacy, and reliability.****
+Built for speed, privacy, and reliability.#
 
 
 
