@@ -161,7 +161,9 @@ async def broadcast_startup_message():
 # -------------------------------------------------
 async def main():
     logger.info("🚀 Launching Save Restricted Bot v4 — Powered by Zain")
-    await bot.start()
+    await bot.start()me = await bot.get_me()
+print(f"Connected as @{me.username}")
+
     logger.success("✅ Bot started successfully and is ready to use.")
 
     # Broadcast on startup
