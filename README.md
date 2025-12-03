@@ -22,17 +22,17 @@ It downloads restricted Telegram content, manages premium users, and provides a 
 ---
 
 ##⚙️ Environment Variables (.env)
-API_ID=123456
-API_HASH=abcd1234
-BOT_TOKEN=123456:ABCDEF
-OWNER_ID=987654321
-MONGO_DB=mongodb+srv://user:pass@cluster
-MASTER_KEY=MySuperSecretKey
-LOG_GROUP=-100123456
-FORCE_SUB=-100987654
-DEBUG=0  
+- API_ID=123456
+- API_HASH=abcd1234
+- BOT_TOKEN=123456:ABCDEF
+- OWNER_ID=987654321
+- MONGO_DB=mongodb+srv://user:pass@cluster
+- MASTER_KEY=MySuperSecretKey
+- LOG_GROUP=-100123456
+- FORCE_SUB=-100987654
+- DEBUG=0  
 ---
-##
+
 SaveRestrictedBot/
 ├── main.py
 ├── app.py
@@ -59,7 +59,7 @@ SaveRestrictedBot/
 ├── render.yaml
 ├── .gitignore
 └── README.md
----
+
 #Render
 
 Add render.yaml
