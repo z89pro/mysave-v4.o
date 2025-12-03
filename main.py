@@ -11,6 +11,8 @@ from utils.cleanup import startup_cleanup_banner, register_exit_cleanup
 from utils.logger import get_logger
 from motor.motor_asyncio import AsyncIOMotorClient
 from config.settings import MONGO_DB
+import logging
+logging.getLogger("pyrogram").setLevel(logging.INFO)
 
 # --------------------------------------------
 # Setup
