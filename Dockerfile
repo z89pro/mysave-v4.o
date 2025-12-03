@@ -1,7 +1,6 @@
 # ============================================
 # ⚡ Save Restricted Content Bot v4 — Powered by Zain
-# File: Dockerfile
-# Description: Container setup for Koyeb / Render / Heroku
+# Dockerfile for Render / Koyeb
 # ============================================
 
 FROM python:3.11-slim
@@ -12,6 +11,6 @@ COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 5000
+EXPOSE 10000
 
 CMD ["bash", "-c", "python3 main.py & python3 app.py"]
